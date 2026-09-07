@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bitácora AIFA — Prototipo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#0B2545;
+    --steel:#134074;
+    --sky:#4C7EA8;
+    --amber:#EFA00B;
+    --bg:#F3F5F8;
+    --card:#FFFFFF;
+    --ink:#16233A;
+    --muted:#5C6B82;
+    --line:#DDE3EC;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Inter',sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+  }
+  header{
+    background:var(--navy);
+    color:#fff;
+    padding:28px 24px 22px;
+  }
+  header .eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    letter-spacing:.04em;
+    color:var(--amber);
+    margin:0 0 6px;
+  }
+  header h1{
+    margin:0 0 4px;
+    font-size:26px;
+    font-weight:600;
+  }
+  header p{
+    margin:0;
+    color:#B7C4D9;
+    font-size:14px;
+    max-width:520px;
+  }
+  .wrap{
+    max-width:920px;
+    margin:0 auto;
+    padding:20px 16px 60px;
+  }
+  .search{
+    display:flex;
+    gap:8px;
+    margin:18px 0 20px;
+  }
+  .search input{
+    flex:1;
+    padding:12px 14px;
+    border:1px solid var(--line);
+    border-radius:8px;
+    font-size:14px;
+    font-family:inherit;
+    background:var(--card);
+  }
+  .search input:focus{
+    outline:2px solid var(--sky);
+    outline-offset:1px;
+  }
+  .tabs{
+    display:flex;
+    gap:6px;
+    flex-wrap:wrap;
+    border-bottom:1px solid var(--line);
+    margin-bottom:20px;
+  }
+  .tab{
+    padding:10px 14px;
+    font-size:14px;
+    font-weight:500;
+    color:var(--muted);
+    background:none;
+    border:none;
+    border-bottom:2px solid transparent;
+    cursor:pointer;
+    font-family:inherit;
+  }
+  .tab.active{
+    color:var(--navy);
+    border-bottom-color:var(--amber);
+  }
+  .manual-list{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:16px 18px;
+  }
+  .card-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:12px;
+  }
+  .card h3{
+    margin:0 0 4px;
+    font-size:15px;
+    font-weight:600;
+  }
+  .tag{
+    display:inline-block;
+    font-size:11px;
+    font-weight:500;
+    padding:3px 8px;
+    border-radius:5px;
+    background:#E7EEF7;
+    color:var(--steel);
+    margin-bottom:6px;
+  }
+  .tag.afac{background:#FBEFDD;color:#8A5A0B;}
+  .tag.aifa{background:#E4EEE7;color:#2C6B45;}
+  .tag.aero{background:#F2E7F4;color:#6E3A87;}
+  .card p{
+    margin:6px 0 0;
+    font-size:13.5px;
+    color:var(--muted);
+    line-height:1.5;
+  }
+  .export-btn{
+    flex-shrink:0;
+    font-size:12px;
+    font-family:inherit;
+    font-weight:500;
+    color:var(--steel);
+    background:none;
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:7px 10px;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  .export-btn:hover{background:#F0F3F8;}
+  .empty{
+    text-align:center;
+    color:var(--muted);
+    font-size:14px;
+    padding:40px 0;
+  }
+  /* Escalafón militar */
+  .rank-group{
+    margin-bottom:18px;
+  }
+  .rank-group h4{
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    color:var(--muted);
+    margin:0 0 8px;
+    font-weight:600;
+  }
+  .rank-row{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:9px 12px;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-left:4px solid var(--sky);
+    border-radius:6px;
+    margin-bottom:6px;
+    font-size:14px;
+  }
+  .rank-row.generales{border-left-color:var(--amber);}
+  .rank-row.jefes{border-left-color:var(--steel);}
+  .rank-row.oficiales{border-left-color:var(--sky);}
+  .rank-row.tropa{border-left-color:#8FA6BF;}
+  .rank-num{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    color:var(--muted);
+    width:22px;
+  }
+  .rank-name{font-weight:500;}
+  .rank-note{
+    margin-left:auto;
+    font-size:12px;
+    color:var(--muted);
+  }
+  .note-box{
+    background:#EFF3F8;
+    border-radius:8px;
+    padding:14px 16px;
+    font-size:13px;
+    color:var(--muted);
+    margin-top:16px;
+    line-height:1.6;
+  }
+  code{
+    font-family:'JetBrains Mono',monospace;
+    background:#EEF1F6;
+    padding:1px 5px;
+    border-radius:4px;
+    font-size:12px;
+  }
+  @media print{
+    header, .search, .tabs, .export-btn{display:none;}
+    body{background:#fff;}
+    .card{border:none;border-bottom:1px solid #ccc;border-radius:0;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <p class="eyebrow">PROTOTIPO · PRÁCTICA PROFESIONAL</p>
+  <h1>Bitácora AIFA</h1>
+  <p>Manuales y estructura organizacional del aeropuerto, organizados por área, para practicantes.</p>
+</header>
+
+<div class="wrap">
+  <div class="search">
+    <input type="text" id="searchInput" placeholder="Buscar manual, tema o palabra clave..." oninput="renderManuals()">
+  </div>
+
+  <div class="tabs" id="tabs"></div>
+  <div id="content"></div>
+</div>
+
+<script>
+/* ============================================================
+   DATOS DE EJEMPLO (hardcodeados para el prototipo).
+   -----------------------------------------------------------
+   Cuando conectes Supabase, esta lista dejará de vivir aquí:
+   1. Crearás una tabla "manuales" en Supabase con estas mismas
+      columnas (id, categoria, titulo, descripcion).
+   2. Sustituirás este arreglo por una llamada:
+        const { data } = await supabase.from('manuales').select('*')
+   3. El resto del código (buscador, tabs, export) no cambia,
+      porque ya está escrito para leer de un arreglo "manuales".
+   ============================================================ */
+const manuales = [
+  { id:1, categoria:'aifa', titulo:'Manual de Organización General del AIFA', descripcion:'Estructura orgánica completa: Dirección General, Subdirecciones Operativa y Administrativa, y sus áreas.' },
+  { id:2, categoria:'aifa', titulo:'Dirección Comercial y de Servicios', descripcion:'Servicios comerciales y aeroportuarios complementarios dentro de la terminal.' },
+  { id:3, categoria:'afac', titulo:'Funciones de la Comandancia de Aeropuerto', descripcion:'Vigilancia, visitas de inspección y actas administrativas que levanta la AFAC en sitio.' },
+  { id:4, categoria:'afac', titulo:'Tipos de permisos y concesiones', descripcion:'Transporte nacional/internacional regular y no regular, taxi aéreo, aviación general y trabajos aéreos.' },
+  { id:5, categoria:'afac', titulo:'SENEAM — Control de tránsito aéreo', descripcion:'Servicios a la navegación aérea y coordinación con torre de control.' },
+  { id:6, categoria:'aero', titulo:'Operación de aerolíneas concesionarias', descripcion:'Cómo operan las aerolíneas que vuelan desde el AIFA y su relación con AFAC.' },
+  { id:7, categoria:'aero', titulo:'Handling y servicios de rampa', descripcion:'Carga, equipaje y combustible: quién los presta y bajo qué autorización.' },
+];
+
+const categorias = {
+  todos:   { label:'Todos' },
+  aifa:    { label:'Operador AIFA', tagClass:'aifa' },
+  afac:    { label:'AFAC y autoridades', tagClass:'afac' },
+  aero:    { label:'Aerolíneas / comercial', tagClass:'aero' },
+  rangos:  { label:'Escalafón militar' },
+};
+
+let tabActiva = 'todos';
+
+function renderTabs(){
+  const tabs = document.getElementById('tabs');
+  tabs.innerHTML = Object.entries(categorias).map(([key, val]) => `
+    <button class="tab ${key===tabActiva ? 'active':''}" onclick="setTab('${key}')">${val.label}</button>
+  `).join('');
+}
+
+function setTab(key){
+  tabActiva = key;
+  renderTabs();
+  renderManuals();
+}
+
+function renderManuals(){
+  const content = document.getElementById('content');
+
+  if (tabActiva === 'rangos'){
+    content.innerHTML = renderEscalafon();
+    return;
+  }
+
+  const query = document.getElementById('searchInput').value.trim().toLowerCase();
+
+  /* Búsqueda simple: nivel 1 mencionado antes (sin librería externa).
+     Cuando quieras algo más flexible (tolera errores de escritura),
+     aquí es donde después conectarías Fuse.js. */
+  const filtrados = manuales.filter(m => {
+    const coincideCategoria = tabActiva === 'todos' || m.categoria === tabActiva;
+    const coincideBusqueda = !query ||
+      m.titulo.toLowerCase().includes(query) ||
+      m.descripcion.toLowerCase().includes(query);
+    return coincideCategoria && coincideBusqueda;
+  });
+
+  if (filtrados.length === 0){
+    content.innerHTML = `<div class="empty">No hay manuales que coincidan con tu búsqueda.</div>`;
+    return;
+  }
+
+  content.innerHTML = `<div class="manual-list">` + filtrados.map(m => `
+    <div class="card" id="manual-${m.id}">
+      <div class="card-top">
+        <div>
+          <span class="tag ${categorias[m.categoria].tagClass}">${categorias[m.categoria].label}</span>
+          <h3>${m.titulo}</h3>
+        </div>
+        <button class="export-btn" onclick="exportarPDF(${m.id})">Exportar PDF</button>
+      </div>
+      <p>${m.descripcion}</p>
+    </div>
+  `).join('') + `</div>`;
+}
+
+/* Exportar a PDF sin backend ni librerías: usamos la función nativa
+   de impresión del navegador. Aíslas visualmente la tarjeta que
+   quieres exportar y disparas window.print(); el usuario elige
+   "Guardar como PDF" en el diálogo de impresión. */
+function exportarPDF(id){
+  document.querySelectorAll('.card').forEach(c => c.style.display = 'none');
+  const card = document.getElementById('manual-' + id);
+  card.style.display = 'block';
+  window.print();
+  setTimeout(() => renderManuals(), 300);
+}
+
+/* ============================================================
+   ESCALAFÓN MILITAR
+   ============================================================ */
+const escalafon = [
+  { grupo:'generales', nombre:'General de División' },
+  { grupo:'generales', nombre:'General de Brigada' },
+  { grupo:'generales', nombre:'General Brigadier' },
+  { grupo:'jefes',     nombre:'Coronel' },
+  { grupo:'jefes',     nombre:'Teniente Coronel' },
+  { grupo:'jefes',     nombre:'Mayor' },
+  { grupo:'oficiales', nombre:'Capitán Primero' },
+  { grupo:'oficiales', nombre:'Capitán Segundo' },
+  { grupo:'oficiales', nombre:'Teniente' },
+  { grupo:'oficiales', nombre:'Subteniente' },
+  { grupo:'tropa',     nombre:'Sargento Primero' },
+  { grupo:'tropa',     nombre:'Sargento Segundo' },
+  { grupo:'tropa',     nombre:'Cabo' },
+  { grupo:'tropa',     nombre:'Soldado' },
+];
+
+const nombresGrupo = {
+  generales:'Generales · mayor rango',
+  jefes:'Jefes',
+  oficiales:'Oficiales',
+  tropa:'Tropa (clases y soldados)',
+};
+
+function renderEscalafon(){
+  let n = 1;
+  const grupos = ['generales','jefes','oficiales','tropa'];
+  return grupos.map(g => `
+    <div class="rank-group">
+      <h4>${nombresGrupo[g]}</h4>
+      ${escalafon.filter(r => r.grupo === g).map(r => `
+        <div class="rank-row ${g}">
+          <span class="rank-num">${String(n++).padStart(2,'0')}</span>
+          <span class="rank-name">${r.nombre}</span>
+        </div>
+      `).join('')}
+    </div>
+  `).join('') + `
+    <div class="note-box">
+      Recuerda: <code>Comandante</code> normalmente es un puesto (ej. Comandante de Aeropuerto de la AFAC), no un grado en sí — quien lo ocupa tiene además un grado militar de esta tabla.
+    </div>
+  `;
+}
+
+renderTabs();
+renderManuals();
+</script>
+</body>
+</html>
